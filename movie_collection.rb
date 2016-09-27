@@ -2,16 +2,16 @@ require_relative 'movie'
 
 require 'csv'
 
+OPTIONS = {
+  col_sep: '|',
+  headers: %i( link title year country premierdate genre duration rating director actors)
+}
+
 class MovieCollection
   def initialize(file_name = 'movies.txt')
     abort("File with name '#{file_name}' is not exists.") unless File.exist?(file_name)
 
-    options = {
-      col_sep: '|',
-      headers: %i( link title year country premierdate genre duration rating director actors)
-    }
-
-    @movies = CSV.open(file_name, options).to_a.map { |row| Movie.new row.to_h }
+    @movies = CSV.open(file_name, OPTIONS).to_a.map { |row| Movie.new row.to_h }
   end
 
   def all
@@ -19,20 +19,27 @@ class MovieCollection
   end
 
   def sort_by(field)
-    @movies.sort { |a, b| a.send(field.to_sym) <=> b.send(field.to_sym) }
+    @movies.sort_by { |movie| movie.send(field.to_sym) }
   end
 
   def filter(**options)
-    @movies.select { |movie| movie.send(options.keys[0])[/#{options.values[0]}/i] }
+    list = @movies
+    options.each do |k, v|
+      case
+      when (v.is_a? Range)
+        list = list.select { |item| v.to_a.any? { |value| value == (item.send(k).to_i) } }
+      when (v.is_a? Regexp)
+        list = list.select { |item| item.send(k).match v }
+      else
+        list = list.select { |item| item.send(k)[/#{v}/i] }
+       end
+    end
+    list
   end
 
   def stats(field)
     @movies.each.with_object(Hash.new(0)) do |movie, stat|
-      begin
-        stat[movie.send(field.to_sym)] += 1
-      rescue
-        stat['Undefined'] += 1
-      end
+      stat[movie.send(field.to_sym)] += 1
     end
   end
 
