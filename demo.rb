@@ -16,7 +16,12 @@ puts movies.stats :drirector rescue
 
 puts movies.all.first.actors
 puts movies.all.find { |movie| movie.has_genre?('Drama') }(2)
-puts movies.all.select { |movie| movie.has_genre?('Tragedy') }
+
+begin
+  puts movies.all.select { |movie| movie.has_genre?('Drrama') }
+rescue => e
+  puts e.message
+end
 
 puts movies.all.last(2).map &:to_s
 p movies.all.last(2)

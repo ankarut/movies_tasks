@@ -23,10 +23,10 @@ class MovieCollection
 
   def filter(**options)
     options.reduce(@movies) do |list, (k, v)|
-      case
-      when Range === v
+      case v
+      when Range
         list = list.select { |item| v === item.send(k).to_i }
-      when (Regexp === v) || (String === v)
+      when Regexp, String
         list = list.select { |item| item.send(k)[v] }
        end
     end
