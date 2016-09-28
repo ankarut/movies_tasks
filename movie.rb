@@ -1,14 +1,12 @@
 class Movie
+  attr_reader :link, :title, :year, :country, :premierdate, :genre, :duration, :rating, :director, :actors
+
   def initialize(movie = {})
-    movie.each_pair do |k, v|
-      instance_variable_set("@#{k}", v)
-      self.class.send(:define_method, k, proc { instance_variable_get("@#{k}") })
-      self.class.send(:define_method, "#{k}=", proc { |v| instance_variable_set("@#{k}", v) })
-    end
+    movie.each_pair { |k, v| instance_variable_set("@#{k}", v) }
   end
 
   def has_genre?(genre)
-    self.genre[/#{genre}/i] ? true : fail("Genre '#{genre}' is not found.")
+    !!self.genre[/#{genre}/i]
   end
 
   def to_s
