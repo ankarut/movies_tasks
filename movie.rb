@@ -3,9 +3,12 @@ class Movie
   require 'objspace'
 
   attr_reader :link, :title, :year, :country, :premierdate, :genre, :duration, :rating, :director, :actors
+  
+  @@known_genres = []
 
   def initialize(movie = {})
     movie.each_pair { |k, v| instance_variable_set("@#{k}", v) }
+    @@known_genres << @genre
   end
 
   def self.all
@@ -13,7 +16,7 @@ class Movie
   end
   
   def has_genre?(genre)
-    fail "Genre #{genre} is not found." if Movie.all.select { |movie| movie.genre.include? genre }.empty?
+    fail "Genre #{genre} is not found." unless @@known_genres.include?(genre)
     !!self.genre[/#{genre}/i]
   end
 

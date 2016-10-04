@@ -26,8 +26,10 @@ class MovieCollection
       case v
       when Range
         list = list.select { |item| v === item.send(k).to_i }
-      when Regexp, String
+      when Regexp
         list = list.select { |item| item.send(k)[v] }
+      when String
+        list = list.select { |item| item.send(k) == v }
        end
     end
   end
@@ -35,6 +37,7 @@ class MovieCollection
   def stats(field)
     @movies.group_by { |movie| movie.send(field.to_sym) }.map { |k, v| [k, v.count] }.to_h
   end
+
 
   def to_s
     @movies.each &:to_s
