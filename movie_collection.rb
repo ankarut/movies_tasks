@@ -24,12 +24,8 @@ class MovieCollection
   def filter(**options)
     options.reduce(@movies) do |list, (k, v)|
       case v
-      when Range
-        list = list.select { |item| v === item.send(k).to_i }
-      when Regexp
-        list = list.select { |item| item.send(k)[v] }
-      when String
-        list = list.select { |item| item.send(k) == v }
+      when Range, Regexp, String
+        list = list.select { |item| ( v === item.send(k)) || ( v === item.send(k).to_i ) || ( item.send(k)[v])   } 
        end
     end
   end
