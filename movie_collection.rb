@@ -5,7 +5,7 @@ require 'csv'
 class MovieCollection
   OPTIONS = {
     col_sep: '|',
-    headers: %i( link title year country premierdate genre duration rating director actors)
+    headers: %i( link title year country premierdate genres duration rating director actors)
   }
 
   def initialize(file_name = 'movies.txt')
@@ -23,17 +23,13 @@ class MovieCollection
 
   def filter(**options)
     options.reduce(@movies) do |list, (k, v)|
-      case v
-      when Range, Regexp, String
-        list = list.select { |item| ( v === item.send(k)) || ( v === item.send(k).to_i ) || ( item.send(k)[v])   } 
-       end
+      list = list.select { |item| (Array === item.send(k)) ? (item.send(k).grep(v).any?) : (v === item.send(k)) }
     end
   end
 
   def stats(field)
     @movies.group_by { |movie| movie.send(field.to_sym) }.map { |k, v| [k, v.count] }.to_h
   end
-
 
   def to_s
     @movies.each &:to_s
